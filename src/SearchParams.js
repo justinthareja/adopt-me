@@ -10,22 +10,25 @@ function SearchParams() {
 
   // initial render happens first then runs this effect
   useEffect(() => {
-    setBreeds([]);
-    setBreed("");
-
+    // as long as you play by the react rules, you get state propagation for free
+    setBreeds([]); // empty array signals to disable the breed dropdown
+    setBreed(""); // sets breed select option back to All
     fetchBreeds();
 
     async function fetchBreeds() {
       try {
-        const { breeds } = await pet.breeds(animal);
-        const breedStrings = breeds.map(({ name }) => name);
-        setBreeds(breedStrings);
+        const { breeds: apiBrees } = await pet.breeds(animal);
+        const breedStrings = apiBreeds.map(({ name }) => name);
+        setBreeds(breedStrings); // any setter rerenders the component
       } catch (error) {
         console.error(error);
       }
     }
 
     // takes a list of dependencies that when updated this useEffect() gets re-run
+    // empty array [] means doesn't depend on anything, so only run once
+    // good for setting up d3 integrations or something of the like
+    // undefined means run on every render
   }, [animal, setBreed, setBreeds]);
 
   return (

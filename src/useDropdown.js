@@ -14,7 +14,7 @@ function useDropdown(label, defaultState, options) {
           value={state}
           onChange={(e) => e.target.value}
           onBlur={(e) => e.target.value}
-          disabled={options.length === 0}
+          disabled={options.length === 0} // allows ux to let user know data is being fetched
         >
           <option>All</option>
           {options.map((item) => (
