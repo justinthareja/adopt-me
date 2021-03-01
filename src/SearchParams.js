@@ -17,7 +17,7 @@ function SearchParams() {
 
     async function fetchBreeds() {
       try {
-        const { breeds: apiBrees } = await pet.breeds(animal);
+        const { breeds: apiBreeds } = await pet.breeds(animal);
         const breedStrings = apiBreeds.map(({ name }) => name);
         setBreeds(breedStrings); // any setter rerenders the component
       } catch (error) {
