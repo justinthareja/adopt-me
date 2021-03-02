@@ -36,6 +36,9 @@ body {
 .app .list-item {
   padding: 10px;
   cursor: pointer;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
 }
 
 .app .list-item--completed {
