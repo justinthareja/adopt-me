@@ -3,7 +3,7 @@ import Pet from "./Pet";
 
 // one way data flow
 // if you have bugs you know where to start which is super helpful
-const Results = ({ pets }) => {
+function Results({ pets }) {
   return (
     <div className="search">
       {pets.length === 0 ? (
@@ -23,6 +23,6 @@ const Results = ({ pets }) => {
       )}
     </div>
   );
-};
+}
 
 export default Results;
