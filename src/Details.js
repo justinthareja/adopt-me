@@ -1,58 +1,55 @@
-import React from "react";
-import pet from "@frontendmasters/pet";
-import { navigate } from "@reach/router";
-import Modal from "./Modal";
+import { Component } from "react";
+import { withRouter } from "react-router-dom";
 import Carousel from "./Carousel";
 import ErrorBoundary from "./ErrorBoundary";
 import ThemeContext from "./ThemeContext";
+import Modal from "./Modal";
 
-class Details extends React.Component {
-  // public class property
+class Details extends Component {
   state = { loading: true, showModal: false };
 
   async componentDidMount() {
-    try {
-      const { animal } = await pet.animal(this.props.id);
+    const res = await fetch(
+      `http://pets-v2.dev-apis.com/pets?id=${this.props.match.params.id}`
+    );
+    const json = await res.json();
 
-      this.setState({
-        url: animal.url,
-        name: animal.name,
-        animal: animal.type,
-        location: `${animal.contact.address.city}, ${animal.contact.address.state}`,
-        description: animal.description,
-        media: animal.photos,
-        breed: animal.breeds.primary,
-        loading: false,
-      });
-    } catch (e) {
-      console.error(e);
-    }
+    this.setState(
+      Object.assign(
+        {
+          loading: false,
+        },
+        json.pets[0]
+      )
+    );
   }
 
   toggleModal = () => this.setState({ showModal: !this.state.showModal });
-  adopt = () => navigate(this.state.url);
+  adopt = () => (window.location = "http://bit.ly/pet-adopt");
 
   render() {
-    if (this.state.loading) {
-      return <h1>loading ...</h1>;
-    }
-
     const {
       animal,
       breed,
-      location,
-      name,
+      city,
+      state,
       description,
-      media,
+      name,
+      loading,
+      images,
       showModal,
     } = this.state;
 
+    if (loading) {
+      return <h2>Loading ...</h2>;
+    }
+
     return (
       <div className="details">
-        <Carousel media={media} />
+        <Carousel images={images} />
         <div>
           <h1>{name}</h1>
-          <h2>{`${animal} - ${breed} - ${location}`}</h2>
+          <h2>{`${animal} - ${breed} - ${city}, ${state}`}</h2>
           <ThemeContext.Consumer>
             {([theme]) => (
               <button
@@ -67,10 +64,10 @@ class Details extends React.Component {
           {showModal ? (
             <Modal>
               <div>
-                <h1>Are you sure you'd like to adopt {name}?</h1>
+                <h1>Are you sure you want to adopt {name}?</h1>
                 <div className="buttons">
                   <button onClick={this.adopt}>Yes</button>
-                  <button onClick={this.toggleModal}>No, I am a monster</button>
+                  <button onClick={this.toggleModal}>No, I'm a monster</button>
                 </div>
               </div>
             </Modal>
@@ -81,10 +78,12 @@ class Details extends React.Component {
   }
 }
 
-export default function DetailsWithErrorBoundary(props) {
+const DetailsWithRouter = withRouter(Details);
+
+export default function DetailsWithErrorBoundary() {
   return (
     <ErrorBoundary>
-      <Details {...props} />
+      <DetailsWithRouter />
     </ErrorBoundary>
   );
 }

@@ -1,43 +1,35 @@
-import React from "react";
+import { Component } from "react";
 
-class Carousel extends React.Component {
+class Carousel extends Component {
   state = {
-    photos: [],
     active: 0,
   };
 
-  // good place to transform state for your needs
-  // must be static
-  static getDerivedStateFromProps({ media }) {
-    let photos = ["https://placecorgi.com/600/600"];
+  static defaultProps = {
+    images: ["http://pets-images.dev-apis.com/pets/none.jpg"],
+  };
 
-    if (media.length > 0) {
-      photos = media.map(({ large }) => large);
-    }
-
-    return { photos };
-  }
-
-  handleIndexClick = (e) => {
+  handleIndexClick = (event) => {
     this.setState({
-      active: Number(e.target.dataset.index),
+      active: Number(event.target.dataset.index),
     });
   };
 
   render() {
-    const { photos, active } = this.state;
+    const { active } = this.state;
+    const { images } = this.props;
 
     return (
       <div className="carousel">
-        <img src={photos[active]} alt="animal" />
+        <img src={images[active]} alt="animal" />
         <div className="carousel-smaller">
-          {photos.map((photo, index) => (
+          {images.map((photo, index) => (
             // eslint-disable-next-line
             <img
               key={photo}
-              onClick={this.handleIndexClick}
-              data-index={index}
               src={photo}
+              data-index={index}
+              onClick={this.handleIndexClick}
               className={index === active ? "active" : ""}
               alt="animal thumbnail"
             />

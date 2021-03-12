@@ -1,49 +1,30 @@
-import React, { useState, useEffect, useContext } from "react";
-import pet, { ANIMALS } from "@frontendmasters/pet";
-import useDropdown from "./useDropdown";
-import Results from "./Results.js";
+import { useState, useEffect, useContext } from "react";
 import ThemeContext from "./ThemeContext";
+import useBreedList from "./useBreedList";
+import Results from "./Results";
 
-function SearchParams() {
+const ANIMALS = ["bird", "cat", "dog", "fish", "coyote"];
+
+const SearchParams = () => {
   const [location, setLocation] = useState("Seattle, WA");
-  const [breeds, setBreeds] = useState([]);
-  const [animal, AnimalDropdown] = useDropdown("Animal", "dog", ANIMALS);
-  const [breed, BreedDropdown, setBreed] = useDropdown("Breed", "", breeds);
+  const [animal, setAnimal] = useState("");
+  const [breed, setBreed] = useState("");
   const [pets, setPets] = useState([]);
+  const [breeds] = useBreedList(animal);
+  // useContext is like a wormhole that returns whatever the value of the ThemeContext.Provider is
   const [theme, setTheme] = useContext(ThemeContext);
 
-  async function requestPets() {
-    const { animals } = await pet.animals({
-      location,
-      breed,
-      type: animal,
-    });
-
-    setPets(animals || []);
-  }
-
-  // initial render happens first then runs this effect
   useEffect(() => {
-    // as long as you play by the react rules, you get state propagation for free
-    setBreeds([]); // empty array signals to disable the breed dropdown
-    setBreed(""); // sets breed select option back to All
-    fetchBreeds();
+    requestPets();
+  }, []); //eslint-disable-line react-hooks/exhaustive-deps
 
-    async function fetchBreeds() {
-      try {
-        const { breeds: apiBreeds } = await pet.breeds(animal);
-        const breedStrings = apiBreeds.map(({ name }) => name);
-        setBreeds(breedStrings); // any setter rerenders the component
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-    // takes a list of dependencies that when updated this useEffect() gets re-run
-    // empty array [] means doesn't depend on anything, so only run once
-    // good for setting up d3 integrations or something of the like
-    // undefined means run on every render
-  }, [animal, setBreed, setBreeds]);
+  async function requestPets() {
+    const res = await fetch(
+      `http://pets-v2.dev-apis.com/pets?animal=${animal}&location=${location}&breed=${breed}`
+    );
+    const json = await res.json();
+    setPets(json.pets);
+  }
 
   return (
     <div className="search-params">
@@ -56,27 +37,55 @@ function SearchParams() {
         <label htmlFor="location">
           Location
           <input
-            type="text"
             id="location"
             value={location}
-            placeholder="location"
+            placeholder="Location"
             onChange={(e) => setLocation(e.target.value)}
           />
         </label>
-        <AnimalDropdown />
-        <BreedDropdown />
+        <label htmlFor="animal">
+          Animal
+          <select
+            id="animal"
+            value={animal}
+            onChange={(e) => setAnimal(e.target.value)}
+            onBlur={(e) => setAnimal(e.target.value)}
+          >
+            <option value=""></option>
+            {ANIMALS.map((animal) => (
+              <option key={animal} value={animal}>
+                {animal}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label htmlFor="breed">
+          Breed
+          <select
+            id="breed"
+            value={breed}
+            onChange={(e) => setBreed(e.target.value)}
+            onBlur={(e) => setBreed(e.target.value)}
+          >
+            <option value=""></option>
+            {breeds.map((breed) => (
+              <option key={breed} value={breed}>
+                {breed}
+              </option>
+            ))}
+          </select>
+        </label>
         <label htmlFor="theme">
           Theme
           <select
             value={theme}
             onChange={(e) => setTheme(e.target.value)}
             onBlur={(e) => setTheme(e.target.value)}
-            name="theme"
-            id="theme"
           >
             <option value="tomato">Tomato</option>
+            <option value="mediumorchid">Medium Orchid</option>
+            <option value="pink">Pink</option>
             <option value="peru">Peru</option>
-            <option value="darkblue">Dark Blue</option>
           </select>
         </label>
         <button style={{ backgroundColor: theme }}>Submit</button>
@@ -84,6 +93,6 @@ function SearchParams() {
       <Results pets={pets} />
     </div>
   );
-}
+};
 
 export default SearchParams;

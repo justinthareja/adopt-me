@@ -1,7 +1,6 @@
 import { createContext } from "react";
 
-// pass in a hook
-// [state, updater]
-const ThemeContext = createContext(["papaya", () => {}]);
+// Default value used for typing
+const ThemeContext = createContext(["", () => {}]);
 
 export default ThemeContext;

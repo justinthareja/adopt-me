@@ -1,27 +1,39 @@
-import React, { useState } from "react";
+import { StrictMode, useState } from "react";
 import { render } from "react-dom";
-import { Router, Link } from "@reach/router";
+import { BrowserRouter as Router, Route, Switch, Link } from "react-router-dom";
 import SearchParams from "./SearchParams";
 import Details from "./Details";
 import ThemeContext from "./ThemeContext";
 
-function App() {
-  const themeHook = useState("tomato");
-  return (
-    <React.StrictMode>
-      <ThemeContext.Provider value={themeHook}>
-        <div>
-          <header>
-            <Link to="/">Adopt Me!</Link>
-          </header>
-          <Router>
-            <SearchParams path="/" />
-            <Details path="/details/:id" />
-          </Router>
-        </div>
-      </ThemeContext.Provider>
-    </React.StrictMode>
-  );
-}
+const App = () => {
+  const theme = useState("tomato");
 
-render(<App />, document.getElementById("root"));
+  return (
+    <ThemeContext.Provider value={theme}>
+      <div>
+        <Router>
+          <header>
+            <Link to="/">
+              <h1>Adopt Me!</h1>
+            </Link>
+          </header>
+          <Switch>
+            <Route path="/details/:id">
+              <Details />
+            </Route>
+            <Route path="/">
+              <SearchParams />
+            </Route>
+          </Switch>
+        </Router>
+      </div>
+    </ThemeContext.Provider>
+  );
+};
+
+render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+  document.getElementById("root")
+);
